@@ -25,16 +25,23 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Compilar APK
+      - name: Instalar Gradle 8.9
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Generar wrapper y compilar APK
         run: |
           GRADLE_DIR=$(dirname $(find . -name "gradlew" | head -n 1))
           cd "$GRADLE_DIR"
+          if [ ! -f "gradle/wrapper/gradle-wrapper.jar" ]; then
+            gradle wrapper --gradle-version 8.9
+          fi
           chmod +x gradlew
           ./gradlew assembleDebug
 
       - name: Subir APK para descarga
         uses: actions/upload-artifact@v4
         with:
-          name: AndroidGuardAI-APK
-          path: "**/build/outputs/apk/debug/*.apk"
-          
+          name: AndroidGuardAI-debug-apk
+          path: "**/build/outputs/apk/debug/app-debug.apk"
